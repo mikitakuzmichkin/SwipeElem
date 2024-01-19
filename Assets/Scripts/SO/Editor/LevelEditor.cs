@@ -23,8 +23,8 @@ namespace SO.Editor
         public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
-            _level.Rows = EditorGUILayout.IntField("Columns",_level.Rows);
-            _level.Columns = EditorGUILayout.IntField("Rows",_level.Columns);
+            _level.Rows = EditorGUILayout.IntField("Rows",_level.Rows);
+            _level.Columns = EditorGUILayout.IntField("Columns",_level.Columns);
             if (EditorGUI.EndChangeCheck())
             {
                 if(_level.Rows * _level.Columns != 0)
