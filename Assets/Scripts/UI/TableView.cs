@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Extensions;
 using UnityEditor;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace UI
 
         private void Start()
         {
-            GenerateCells((x,z) => _cell.SetSize(z.x, z.y));
+            GenerateCells(SetCell);
         }
 
         private void GenerateCells(Action<Vector3, Vector2> callback)
@@ -32,7 +33,7 @@ namespace UI
                 mainCorner.leftDownCorner.y + cellSize.y * _rows);
             var usefulCorners = leftUpUsefulCorner.GetCornersFromLeftUpCorner(height, width);
 
-            for (int i = 0; i < _rows; i++)
+            for (int i = _rows - 1; i >= 0; i--)
             {
                 for (int j = 0; j < _columns; j++)
                 {
@@ -50,7 +51,7 @@ namespace UI
             Gizmos.color = Color.white;
             var corner = transform.position.GetCornersFromCenter(_height, _width);
             GizmosWrapper.DrawGizmosRect(corner.leftUpCorner, corner.rightUpCorner, corner.leftDownCorner, corner.rightDownCorner);
-            GenerateCells(DrawCells);
+            //GenerateCells(DrawCells);
         }
 
         private void OnDrawGizmos()
@@ -66,6 +67,19 @@ namespace UI
             var cellCorners = leftUpCell.GetCornersFromLeftUpCorner(cellSize.y, cellSize.x);
             Gizmos.color = Color.white;
             GizmosWrapper.DrawGizmosRect(cellCorners.leftUpCorner, cellCorners.rightUpCorner, cellCorners.leftDownCorner, cellCorners.rightDownCorner);    
+        }
+
+        private void SetCell(Vector3 leftUpCell, Vector2 cellSize)
+        {
+            StartCoroutine(CoSetCell(leftUpCell, cellSize));
+        }
+
+        private IEnumerator CoSetCell(Vector3 leftUpCell, Vector2 cellSize)
+        {
+            var cell = Instantiate(_cell);
+            yield return new WaitForEndOfFrame();
+            cell.SetSize(cellSize.x, cellSize.y);
+            cell.SetPos(leftUpCell.GetCenter(cellSize));
         }
         
     }

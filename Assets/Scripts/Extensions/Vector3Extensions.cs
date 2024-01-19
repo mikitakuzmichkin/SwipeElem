@@ -57,5 +57,13 @@ namespace Extensions
             
             return (leftUp, rightUp, leftDown, rightDown);
         }
+
+        public static Vector3 GetCenter(this Vector3 leftUpCorner, Vector2 size)
+        {
+            var center = leftUpCorner;
+            center.y -= size.y / 2f;
+            center.x += size.x / 2f;
+            return center;
+        }
     }
 }

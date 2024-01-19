@@ -30,6 +30,14 @@ namespace UI
                 transform.localScale.z);
             transform.parent = parent;
         }
+
+        public void SetPos(Vector3 pos)
+        {
+            pos.x -= (_up - _down) / 2f * transform.localScale.x;
+            pos.y -= (_right - _left) / 2f * transform.localScale.y;
+            transform.position = pos;
+        }
+        
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.white;
