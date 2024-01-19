@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace SO.Editor
 {
-    [CustomEditor(typeof(Levels))]
+    [CustomEditor(typeof(Level))]
     public class LevelEditor : UnityEditor.Editor
     {
-        private Levels _level;
+        private Level _level;
         private bool _showBoard;
         
         public void OnEnable()
         {
-            _level = (Levels)target;
+            _level = (Level)target;
             if (_level.IsMapNull() && _level.Rows * _level.Columns != 0)
             {
                 _level.CreateMap();
