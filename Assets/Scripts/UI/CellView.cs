@@ -10,6 +10,7 @@ namespace UI
         [SerializeField] private float _down;
         [SerializeField] private float _left;
         [SerializeField] private float _right;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
 
         public float GetAspectRatio =>  _Width / _Height;
         private float _Width => (_right + _left);
@@ -36,6 +37,16 @@ namespace UI
             pos.x -= (_up - _down) / 2f * transform.localScale.x;
             pos.y -= (_right - _left) / 2f * transform.localScale.y;
             transform.position = pos;
+        }
+
+        public void SetSprite(Sprite sprite)
+        {
+            _spriteRenderer.sprite = sprite;
+        }
+
+        public void SetOrder(int order)
+        {
+            _spriteRenderer.sortingOrder = order;
         }
         
         private void OnDrawGizmosSelected()

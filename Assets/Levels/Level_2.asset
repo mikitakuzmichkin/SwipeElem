@@ -16,5 +16,5 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 0, g: 0, b: 1, a: 1}
   - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  Rows: 0
-  Columns: 0
+  Rows: 5
+  Columns: 4

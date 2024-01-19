@@ -101,3 +101,4 @@ MonoBehaviour:
   _down: 1.1
   _left: 1.1
   _right: 0.84
+  _spriteRenderer: {fileID: 7526268914493611851}

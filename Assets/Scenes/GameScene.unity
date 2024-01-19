@@ -459,6 +459,65 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1685717186
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1685717189}
+  - component: {fileID: 1685717188}
+  - component: {fileID: 1685717187}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1685717187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685717186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 011971c411e24d6ca068839716ee8270, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _cellSettings: {fileID: 11400000, guid: dc310bff467e4634da8a885ac1051a9b, type: 2}
+  _levels: {fileID: 11400000, guid: 5a12a2b77edf4814998e8daacaf7f793, type: 2}
+--- !u!114 &1685717188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685717186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6a423fdf2d746f197eb029f5480dd37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1685717189
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1685717186}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.7979407, y: 0.47561282, z: -0.036560353}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2056007972
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,8 +549,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _width: 4.16
   _height: 6.2
-  _cell: {fileID: 7713056085958370818, guid: 6eb6008bb95a9674ea19a184417f4d95, type: 3}
-  _level: {fileID: 11400000, guid: 1c566914f917fa6459a38244c9251814, type: 2}
 --- !u!4 &2056007974
 Transform:
   m_ObjectHideFlags: 0
