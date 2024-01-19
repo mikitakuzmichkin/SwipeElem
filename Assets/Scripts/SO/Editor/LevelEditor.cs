@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditor.Overlays;
 using UnityEngine;
 
@@ -13,9 +14,9 @@ namespace SO.Editor
         public void OnEnable()
         {
             _level = (Levels)target;
-            if (_level._map == null && _level.Rows * _level.Columns != 0)
+            if (_level.IsMapNull() && _level.Rows * _level.Columns != 0)
             {
-                _level._map = new int[_level.Rows, _level.Columns];
+                _level.CreateMap();
             }
         }
         
@@ -28,14 +29,15 @@ namespace SO.Editor
             {
                 if(_level.Rows * _level.Columns != 0)
                 {
-                    _level._map = new int[_level.Rows, _level.Columns];
+                    _level.ResizeMap();
                 }
             }
-            CreateDoubleArray(_level._map, _level.Rows, _level.Columns, ref _showBoard, "Level", false);
+            CreateDoubleArray( _level.Rows, _level.Columns, ref _showBoard, "Level", false);
+            EditorUtility.SetDirty(_level);
             base.OnInspectorGUI();
         }
         
-        public void CreateDoubleArray(int[,] array, int rows, int columns, ref bool showBoard, string boardName = "Board", bool reverseArray = true)
+        public void CreateDoubleArray(int rows, int columns, ref bool showBoard, string boardName = "Board", bool reverseArray = true)
         {
             showBoard = EditorGUILayout.Foldout(showBoard, boardName);
             if (showBoard && (rows * columns != 0))
@@ -132,13 +134,13 @@ namespace SO.Editor
                                 j = x;
                             }
 
-                            GUI.backgroundColor = _level._Colors[array[i, j]];
+                            GUI.backgroundColor = _level._Colors[_level[i, j]];
                             if (GUILayout.Button(""))
                             {
-                                array[i, j]++;
-                                if (array[i, j] >= _level._Colors.Length)
+                                _level[i, j]++;
+                                if (_level[i, j] >= _level._Colors.Length)
                                 {
-                                    array[i, j] = 0;
+                                    _level[i, j] = 0;
                                 }
                             }
                             EditorGUILayout.EndHorizontal();
