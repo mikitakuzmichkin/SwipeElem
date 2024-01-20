@@ -1,4 +1,5 @@
 ﻿using System;
+using DefaultNamespace;
 using Extensions;
 using UnityEngine;
 
@@ -11,8 +12,13 @@ namespace UI
         [SerializeField] private float _left;
         [SerializeField] private float _right;
         [SerializeField] private SpriteRenderer _spriteRenderer;
-
+        
+        //temp
+        [SerializeField] private EMove _move;
+        //
+        
         public float GetAspectRatio =>  _Width / _Height;
+        public event Action<CellView, EMove> onMove;
         private float _Width => (_right + _left);
         private float _Height => (_up + _down);
 
@@ -20,6 +26,15 @@ namespace UI
         {
             Debug.Log("local " + transform.localScale);
             Debug.Log("lossyScale " + transform.lossyScale);
+        }
+
+        private void Update()
+        {
+            if (_move != EMove.None)
+            {
+                onMove?.Invoke(this, _move);
+                _move = EMove.None;
+            }
         }
 
         public void SetSize(float width, float height)

@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca387059ae5f4124bce018a0b8e9f356, type: 3}
-  m_Name: Level_2
+  m_Script: {fileID: 11500000, guid: 185b134997d4476cabe7bcdcf05260e7, type: 3}
+  m_Name: LevelList
   m_EditorClassIdentifier: 
-  _Colors:
-  - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0, g: 0, b: 1, a: 1}
-  - {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  Rows: 5
-  Columns: 4
+  _list:
+  - {fileID: 11400000, guid: 1c566914f917fa6459a38244c9251814, type: 2}
+  - {fileID: 11400000, guid: ccb4edd13a9aee64b84d1241471e0903, type: 2}
