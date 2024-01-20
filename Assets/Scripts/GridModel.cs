@@ -29,9 +29,16 @@ namespace DefaultNamespace
             _map[newPlace.x, newPlace.y] = temp;
             
             onCellChangePlace?.Invoke(oldPlace, newPlace);
+
+            bool fall = false;
+            do
+            {
+                fall = CheckFall();
+                //CheckBoom();
+            } while (fall);
         }
 
-        private void CheckFall()
+        private bool CheckFall()
         {
             List<Vector2Int> fallIndexes = new List<Vector2Int>();
             for (int j = 0; j < _columns; j++)
@@ -53,10 +60,17 @@ namespace DefaultNamespace
                 }
             }
 
+            foreach (var index in fallIndexes)
+            {
+                _map[index.x + 1, index.y] = _map[index.x, index.y];
+            }
+
             if (fallIndexes.Count > 0)
             {
                 onCellFall?.Invoke(fallIndexes);
             }
+            
+            return fallIndexes.Count > 0;
         }
         
         //Will cells consisting of two horizontal and three vertical in the shape of a letter "Г" be considered valid?

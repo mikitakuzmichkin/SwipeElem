@@ -13,13 +13,13 @@ namespace SO
         [HideInInspector] public Color[] _Colors = new[] {Color.white, Color.blue, Color.yellow};
         [HideInInspector] public int Rows;
         [HideInInspector] public int Columns;
-        private int[] _map;
+        public int[] Map;
         private int _rows;
         private int _columns;
 
         public void CreateMap()
         {
-            _map = new int[Rows*Columns];
+            Map = new int[Rows*Columns];
             _rows = Rows;
             _columns = Columns;
         }
@@ -55,13 +55,13 @@ namespace SO
 
         public bool IsMapNull()
         {
-            return _map == null;
+            return Map == null;
         }
         
         public int this[int i, int j]
         {
-            get => _map[i * Columns + j];
-            set => _map[i * Columns + j] = value;
+            get => Map[i * Columns + j];
+            set => Map[i * Columns + j] = value;
         }
     }
 }

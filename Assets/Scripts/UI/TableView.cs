@@ -24,6 +24,7 @@ namespace UI
         private Vector2 _cellSize;
         private Vector3 _leftUpUsefulCorner;
         private GridController _controller;
+        private bool _isAnim;
         
         private Queue<List<Sequence>> _animQueue = new Queue<List<Sequence>>();
 
@@ -36,6 +37,8 @@ namespace UI
             _columns = map.GetLength(1);
             _cellSettings = ProjectContext.GetInstance<CellSettings>();
             GenerateCells(map, _rows, _columns);
+
+            DOTween.defaultAutoPlay = AutoPlay.None;
             
             _controller = new GridController(this, new GridModel(map, _rows, _columns));
         }
@@ -43,28 +46,102 @@ namespace UI
         public void CellPlaceChangedAnim(Vector2Int oldPlace, Vector2Int newPlace)
         {
             List<Sequence> animList = new List<Sequence>();
-            var firstCell = _cellMap[oldPlace.x, oldPlace.y];
-            if (firstCell != null)
+
+            void UpdateCell(CellView cell, Vector2Int place)
             {
-                firstCell.SetOrder((_rows - newPlace.x) * _columns + newPlace.y + 1);
-                var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * newPlace.y,
-                    _leftUpUsefulCorner.y - _cellSize.y * newPlace.x);
-                var newPos = leftUpCell.GetCenter(_cellSize);
-                DOTween.To(() => firstCell.transform.position, (x) => firstCell.SetPos(x), newPos, _DURATION);
+                if (cell != null)
+                {
+                    var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * place.y,
+                        _leftUpUsefulCorner.y - _cellSize.y * place.x);
+                    var newPos = leftUpCell.GetCenter(_cellSize);
+                    
+                    var seq = DOTween.Sequence();
+                    if (cell.transform.position.x < newPos.x)
+                    {
+                        seq.AppendCallback(() => SetOrder(cell, place));
+                    }
+                    seq.Append(DOTween.To(() => cell.transform.position, cell.SetPos, newPos, _DURATION));
+                    if (cell.transform.position.x >= newPos.x)
+                    {
+                        seq.AppendCallback(() => SetOrder(cell, place));
+                    }
+                    animList.Add(seq);
+                }
             }
             
+            var firstCell = _cellMap[oldPlace.x, oldPlace.y];
+            UpdateCell(firstCell, newPlace);
+            
             var secondCell = _cellMap[newPlace.x, newPlace.y];
-            if (secondCell != null)
+            UpdateCell(secondCell, oldPlace);
+
+            if (animList.Count > 0)
             {
-                secondCell.SetOrder((_rows - oldPlace.x) * _columns + oldPlace.y + 1);
-                var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * oldPlace.y,
-                    _leftUpUsefulCorner.y - _cellSize.y * oldPlace.x);
-                var newPos = leftUpCell.GetCenter(_cellSize);
-                DOTween.To(() => secondCell.transform.position, (x) => secondCell.SetPos(x), newPos, _DURATION);
+                AddAnim(animList);
             }
 
             _cellMap[oldPlace.x, oldPlace.y] = secondCell;
             _cellMap[newPlace.x, newPlace.y] = firstCell;
+        }
+
+        public void CellFallAnim(List<Vector2Int> Indexes)
+        {
+            List<Sequence> animList = new List<Sequence>();
+            foreach (var index in Indexes)
+            {
+                var cell = _cellMap[index.x, index.y];
+                var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * index.y,
+                    _leftUpUsefulCorner.y - _cellSize.y * (index.x + 1));
+                var newPos = leftUpCell.GetCenter(_cellSize);
+                animList.Add(DOTween.Sequence()
+                    .AppendCallback(() => SetOrder(cell, new Vector2Int(index.x + 1, index.y)))
+                    .Append(DOTween.To(() => cell.transform.position, (x) => cell.SetPos(x), newPos, _DURATION)));
+
+                _cellMap[index.x + 1, index.y] = _cellMap[index.x, index.y];
+                _cellMap[index.x, index.y] = null;
+            }
+            
+            if (animList.Count > 0)
+            {
+                AddAnim(animList);
+            }
+        }
+
+        private void AddAnim(List<Sequence> listSeq)
+        {
+            foreach (var seq in listSeq)
+            {
+                seq.Pause();
+            }
+            _animQueue.Enqueue(listSeq);
+            Debug.Log("_animQueue.Enqueue");
+            if (_isAnim == false)
+            {
+                PlayAnim();
+            }
+        }
+
+        private void PlayAnim()
+        {
+            if (_animQueue.Count > 0)
+            {
+                _isAnim = true;
+                Debug.Log("_animQueue.Dequeue");
+                List<Sequence> list = _animQueue.Dequeue();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        list[i].AppendInterval(1f).AppendCallback(PlayAnim);
+                    }
+
+                    list[i].Play();
+                }
+            }
+            else
+            {
+                _isAnim = false;
+            }
         }
 
         private void GenerateCells(int[,] map, int rows, int columns)
@@ -115,10 +192,16 @@ namespace UI
             var cell = Instantiate(_cellSettings.Prefab);
             _cellMap[index.x, index.y] = cell;
             cell.SetSprite(_cellSettings.ListCells[map[index.x,index.y] - 1].Sprite);
-            cell.SetOrder((rows - index.x) * columns + index.y + 1);
+            //cell.SetOrder((rows - index.x) * columns + index.y + 1);
+            SetOrder(cell, index);
             cell.SetSize(cellSize.x, cellSize.y);
             cell.SetPos(leftUpCell.GetCenter(cellSize));
             cell.onMove += CellMoved;
+        }
+
+        private void SetOrder(CellView cell, Vector2Int index)
+        {
+            cell.SetOrder(index.y * _rows + (_rows - index.x));
         }
 
         private void CellMoved(CellView cell, EMove direction)
