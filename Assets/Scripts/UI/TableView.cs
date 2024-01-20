@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using DefaultNamespace;
+using DG.Tweening;
 using Extensions;
 using SO;
 using UnityEditor;
@@ -10,6 +12,8 @@ namespace UI
 {
     public class TableView : MonoBehaviour
     {
+        private const float _DURATION = 0.5f;
+        
         [SerializeField] private float _width;
         [SerializeField] private float _height;
         
@@ -21,7 +25,7 @@ namespace UI
         private Vector3 _leftUpUsefulCorner;
         private GridController _controller;
         
-        private Queue _animQueue = new Queue();
+        private Queue<List<Sequence>> _animQueue = new Queue<List<Sequence>>();
 
         public event Action<Vector2Int, Vector2Int> onCellMoved;
 
@@ -38,13 +42,15 @@ namespace UI
 
         public void CellPlaceChangedAnim(Vector2Int oldPlace, Vector2Int newPlace)
         {
+            List<Sequence> animList = new List<Sequence>();
             var firstCell = _cellMap[oldPlace.x, oldPlace.y];
             if (firstCell != null)
             {
                 firstCell.SetOrder((_rows - newPlace.x) * _columns + newPlace.y + 1);
                 var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * newPlace.y,
                     _leftUpUsefulCorner.y - _cellSize.y * newPlace.x);
-                firstCell.SetPos(leftUpCell.GetCenter(_cellSize));
+                var newPos = leftUpCell.GetCenter(_cellSize);
+                DOTween.To(() => firstCell.transform.position, (x) => firstCell.SetPos(x), newPos, _DURATION);
             }
             
             var secondCell = _cellMap[newPlace.x, newPlace.y];
@@ -53,7 +59,8 @@ namespace UI
                 secondCell.SetOrder((_rows - oldPlace.x) * _columns + oldPlace.y + 1);
                 var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * oldPlace.y,
                     _leftUpUsefulCorner.y - _cellSize.y * oldPlace.x);
-                secondCell.SetPos(leftUpCell.GetCenter(_cellSize));
+                var newPos = leftUpCell.GetCenter(_cellSize);
+                DOTween.To(() => secondCell.transform.position, (x) => secondCell.SetPos(x), newPos, _DURATION);
             }
 
             _cellMap[oldPlace.x, oldPlace.y] = secondCell;
