@@ -240,10 +240,11 @@ namespace UI
             _cellMap[index.x, index.y] = cell;
             var cellVariant = _cellSettings.ListCells[map[index.x, index.y] - 1];
             cell.SetSprite(cellVariant.Sprite);
-            cell.SetAnim(cellVariant.BoomAnim);
+            cell.SetAnim(cellVariant.IdleAnim, cellVariant.BoomAnim);
             SetOrder(cell, index);
             cell.SetSize(cellSize.x, cellSize.y);
             cell.SetPos(leftUpCell.GetCenter(cellSize));
+            cell.Init();
             cell.onMove += CellMoved;
         }
 

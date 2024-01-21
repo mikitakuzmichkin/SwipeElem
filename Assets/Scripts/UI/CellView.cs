@@ -1,61 +1,127 @@
 ﻿using System;
+using System.Collections;
 using DefaultNamespace;
+using DG.Tweening;
 using Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace UI
 {
     public class CellView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
+        private const float MIN_DELAY = 1f;
+        private const float MAX_DELAY = 3f;
+        private const float IDLE_DURATION = 1.5f;
+
         [SerializeField] private float _up;
         [SerializeField] private float _down;
         [SerializeField] private float _left;
         [SerializeField] private float _right;
         [SerializeField] private SpriteRenderer _spriteRenderer;
-        [SerializeField] private Collider2D _collider2D;
-        
-        //temp
-        [SerializeField] private EMove _move;
-        //
-        private Vector3 _startPoint;
+
+        private Sprite[] _boomAnim;
+        private int _boomIndex;
+        private Sequence _sequence;
+        private Sprite[] _idleAnim;
+        private int _idleAnimIndex;
         private float _minDistance;
-        
-        public float GetAspectRatio =>  _Width / _Height;
-        public event Action<CellView, EMove> onMove;
-        private float _Width => (_right + _left);
-        private float _Height => (_up + _down);
+
+        private Vector3 _startPoint;
+
+        public float GetAspectRatio => _Width / _Height;
+        private float _Width => _right + _left;
+        private float _Height => _up + _down;
 
         public int BoomIndex
         {
             get => _boomIndex;
             set
-            { 
+            {
+                if (_sequence != null)
+                {
+                    _sequence.Kill();
+                    _sequence = null;
+                }
+
                 _boomIndex = value;
                 SetSprite(_boomAnim[value]);
             }
         }
 
-        public int BoomIndexMax => _boomAnim.Length;
-
-        private Sprite[] _boomAnim;
-        private int _boomIndex;
-
-        private void Update()
+        private int IdleIndex
         {
-            if (_move != EMove.None)
+            get => _idleAnimIndex;
+            set
             {
-                onMove?.Invoke(this, _move);
-                _move = EMove.None;
+                _idleAnimIndex = value;
+                SetSprite(_idleAnim[value]);
             }
+        }
+
+        public int BoomIndexMax => _boomAnim.Length;
+        public event Action<CellView, EMove> onMove;
+
+        private void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.white;
+            var corner = transform.position.GetCornersFromSides(_up * transform.lossyScale.y,
+                _down * transform.lossyScale.y,
+                _left * transform.lossyScale.x,
+                _right * transform.lossyScale.x);
+            GizmosWrapper.DrawGizmosRect(corner.leftUpCorner, corner.rightUpCorner, corner.leftDownCorner,
+                corner.rightDownCorner);
+        }
+
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            Debug.Log("OnPointerDown");
+            _startPoint = eventData.position;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            Vector3 endPos = eventData.position;
+            if (Vector3.Distance(_startPoint, endPos) > _minDistance)
+            {
+                // Вычисляем вектор свайпа как разность между конечной и начальной точкой
+                var swipeVector = endPos - _startPoint;
+                // Нормализуем вектор свайпа, чтобы он имел длину 1
+                swipeVector = swipeVector.normalized;
+                // Вызываем метод, который определяет направление свайпа
+                onMove?.Invoke(this, GetSwipeDirection(swipeVector));
+            }
+        }
+
+        public void Init()
+        {
+            Loop();
+        }
+
+        private void Loop()
+        {
+            var delay = Random.Range(MIN_DELAY, MAX_DELAY);
+            _sequence?.Kill();
+            _sequence = DOTween.Sequence().Append(DOTween.To(() => IdleIndex, x => IdleIndex = x, _idleAnim.Length, IDLE_DURATION))
+                .SetEase(Ease.Linear)
+                .AppendInterval(delay)
+                .AppendCallback(() =>
+                {
+                    IdleIndex = 0;
+                    Loop();
+                })
+                .SetLoops(-1, LoopType.Restart);
+            Debug.Log("Anim Loop");
         }
 
         public void SetSize(float width, float height)
         {
             var parent = transform.parent;
             transform.parent = null;
-            transform.localScale = new Vector3(width / (_Width * transform.lossyScale.x),  
-                height / (_Height * transform.localScale.y), 
+            transform.localScale = new Vector3(width / (_Width * transform.lossyScale.x),
+                height / (_Height * transform.localScale.y),
                 transform.localScale.z);
             transform.parent = parent;
             _minDistance = Mathf.Min(width, height) / 2f;
@@ -72,63 +138,35 @@ namespace UI
         {
             _spriteRenderer.sprite = sprite;
         }
-        
-        public void SetAnim(Sprite[] boomAnim)
+
+        public void SetAnim(Sprite[] idleAnim, Sprite[] boomAnim)
         {
+            _idleAnim = idleAnim;
             _boomAnim = boomAnim;
+            _idleAnimIndex = 0;
+            _boomIndex = 0;
         }
 
         public void SetOrder(int order)
         {
             _spriteRenderer.sortingOrder = order;
         }
-        
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.color = Color.white;
-            var corner = transform.position.GetCornersFromSides(_up * transform.lossyScale.y,
-                _down * transform.lossyScale.y,
-                _left * transform.lossyScale.x,
-                _right * transform.lossyScale.x);
-            GizmosWrapper.DrawGizmosRect(corner.leftUpCorner, corner.rightUpCorner, corner.leftDownCorner, corner.rightDownCorner);
-        }
 
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            Debug.Log("OnPointerDown");
-            _startPoint = eventData.position;
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            Vector3 endPos = eventData.position;
-            if (Vector3.Distance(_startPoint, endPos) > _minDistance)
-            {
-                // Вычисляем вектор свайпа как разность между конечной и начальной точкой
-                Vector3 swipeVector = endPos - _startPoint;
-                // Нормализуем вектор свайпа, чтобы он имел длину 1
-                swipeVector = swipeVector.normalized;
-                // Вызываем метод, который определяет направление свайпа
-                onMove?.Invoke(this, GetSwipeDirection(swipeVector));
-            }
-        }
-        
         private EMove GetSwipeDirection(Vector3 swipeVector)
         {
             // Объявляем переменную для хранения минимального угла между вектором свайпа и одним из направлений
-            float minAngle = Mathf.Infinity;
+            var minAngle = Mathf.Infinity;
             // Объявляем переменную для хранения направления свайпа
-            EMove swipeDirection = EMove.None;
+            var swipeDirection = EMove.None;
             // Создаем массив из четырех направлений
             Vector3[] directions = {Vector3.up, Vector3.down, Vector3.left, Vector3.right};
             // Создаем массив из четырех строк, которые соответствуют направлениям
             EMove[] directionNames = {EMove.Up, EMove.Down, EMove.Left, EMove.Right};
             // Проходим по массиву направлений в цикле
-            for (int i = 0; i < directions.Length; i++)
+            for (var i = 0; i < directions.Length; i++)
             {
                 // Вычисляем угол между вектором свайпа и текущим направлением
-                float angle = Vector3.Angle(swipeVector, directions[i]);
+                var angle = Vector3.Angle(swipeVector, directions[i]);
                 // Если угол меньше минимального угла, то обновляем минимальный угол и направление свайпа
                 if (angle < minAngle)
                 {
@@ -136,6 +174,7 @@ namespace UI
                     swipeDirection = directionNames[i];
                 }
             }
+
             // Выводим направление свайпа в консоль
             Debug.Log("Направление свайпа: " + swipeDirection);
             return swipeDirection;
