@@ -12,7 +12,9 @@ namespace UI
 {
     public class TableView : MonoBehaviour
     {
-        private const float _DURATION = 0.5f;
+        private const float _DURATION_CHANGE_PLACE = 0.5f;
+        private const float _DURATION_CHANGE_FALL = 0.5f;
+        private const float _DURATION_BOOM = 1.5f;
         
         [SerializeField] private float _width;
         [SerializeField] private float _height;
@@ -60,7 +62,7 @@ namespace UI
                     {
                         seq.AppendCallback(() => SetOrder(cell, place));
                     }
-                    seq.Append(DOTween.To(() => cell.transform.position, cell.SetPos, newPos, _DURATION));
+                    seq.Append(DOTween.To(() => cell.transform.position, cell.SetPos, newPos, _DURATION_CHANGE_PLACE));
                     if (cell.transform.position.x >= newPos.x)
                     {
                         seq.AppendCallback(() => SetOrder(cell, place));
@@ -95,9 +97,29 @@ namespace UI
                 var newPos = leftUpCell.GetCenter(_cellSize);
                 animList.Add(DOTween.Sequence()
                     .AppendCallback(() => SetOrder(cell, new Vector2Int(index.x + 1, index.y)))
-                    .Append(DOTween.To(() => cell.transform.position, (x) => cell.SetPos(x), newPos, _DURATION)));
+                    .Append(DOTween.To(() => cell.transform.position, (x) => cell.SetPos(x), newPos, _DURATION_CHANGE_FALL)));
 
                 _cellMap[index.x + 1, index.y] = _cellMap[index.x, index.y];
+                _cellMap[index.x, index.y] = null;
+            }
+            
+            if (animList.Count > 0)
+            {
+                AddAnim(animList);
+            }
+        }
+
+        public void CellBoomAnim(List<Vector2Int> Indexes)
+        {
+            List<Sequence> animList = new List<Sequence>();
+            foreach (var index in Indexes)
+            {
+                var cell = _cellMap[index.x, index.y];
+                animList.Add(DOTween.Sequence()
+                    .Append(DOTween.To(() => cell.BoomIndex, (x) => cell.BoomIndex = x, cell.BoomIndexMax,
+                        _DURATION_BOOM)).SetEase(Ease.Linear)
+                    .AppendCallback(() => cell.gameObject.SetActive(false)));
+                
                 _cellMap[index.x, index.y] = null;
             }
             
@@ -191,8 +213,9 @@ namespace UI
             
             var cell = Instantiate(_cellSettings.Prefab);
             _cellMap[index.x, index.y] = cell;
-            cell.SetSprite(_cellSettings.ListCells[map[index.x,index.y] - 1].Sprite);
-            //cell.SetOrder((rows - index.x) * columns + index.y + 1);
+            var cellVariant = _cellSettings.ListCells[map[index.x, index.y] - 1];
+            cell.SetSprite(cellVariant.Sprite);
+            cell.SetAnim(cellVariant.BoomAnim);
             SetOrder(cell, index);
             cell.SetSize(cellSize.x, cellSize.y);
             cell.SetPos(leftUpCell.GetCenter(cellSize));

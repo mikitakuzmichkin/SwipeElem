@@ -15,6 +15,8 @@ namespace SO
         public class Cells
         {
             public Sprite Sprite;
+            public Sprite[] IdleAnim;
+            public Sprite[] BoomAnim;
         }
     }
 }

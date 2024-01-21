@@ -34,7 +34,7 @@ namespace DefaultNamespace
             do
             {
                 fall = CheckFall();
-                //CheckBoom();
+                CheckBoom();
             } while (fall);
         }
 
@@ -63,6 +63,7 @@ namespace DefaultNamespace
             foreach (var index in fallIndexes)
             {
                 _map[index.x + 1, index.y] = _map[index.x, index.y];
+                _map[index.x, index.y] = 0;
             }
 
             if (fallIndexes.Count > 0)
@@ -83,8 +84,12 @@ namespace DefaultNamespace
                 List<Vector2Int> colIndexes = new List<Vector2Int>();
                 for (int j = 1; j < _columns; j++)
                 {
-                    if (_map[i,j] == _map[i,j - 1])
+                    if (_map[i,j] == _map[i,j - 1] && _map[i,j] != 0)
                     {
+                        if (colIndexes.Count == 0)
+                        {
+                            colIndexes.Add(new Vector2Int(i,j - 1));
+                        }
                         colIndexes.Add(new Vector2Int(i,j));
                     }
                     else
@@ -107,8 +112,12 @@ namespace DefaultNamespace
                 List<Vector2Int> rowIndexes = new List<Vector2Int>();
                 for (int i = 1; i < _rows; i++)
                 {
-                    if (_map[i,j] == _map[i - 1,j])
+                    if (_map[i,j] == _map[i - 1,j] && _map[i,j] != 0)
                     {
+                        if (rowIndexes.Count == 0)
+                        {
+                            rowIndexes.Add(new Vector2Int(i - 1,j));
+                        }
                         rowIndexes.Add(new Vector2Int(i,j));
                     }
                     else
@@ -126,6 +135,16 @@ namespace DefaultNamespace
                 }
             }
             
+            
+            foreach (var index in boomIndexes)
+            {
+                _map[index.x, index.y] = 0;
+            }
+
+            if (boomIndexes.Count > 0)
+            {
+                onCellBoom?.Invoke(boomIndexes);
+            }
         }
 
         private void CheckWin()

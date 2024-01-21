@@ -22,11 +22,20 @@ namespace UI
         private float _Width => (_right + _left);
         private float _Height => (_up + _down);
 
-        private void Start()
+        public int BoomIndex
         {
-            Debug.Log("local " + transform.localScale);
-            Debug.Log("lossyScale " + transform.lossyScale);
+            get => _boomIndex;
+            set
+            { 
+                _boomIndex = value;
+                SetSprite(_boomAnim[value]);
+            }
         }
+
+        public int BoomIndexMax => _boomAnim.Length;
+
+        private Sprite[] _boomAnim;
+        private int _boomIndex;
 
         private void Update()
         {
@@ -57,6 +66,11 @@ namespace UI
         public void SetSprite(Sprite sprite)
         {
             _spriteRenderer.sprite = sprite;
+        }
+        
+        public void SetAnim(Sprite[] boomAnim)
+        {
+            _boomAnim = boomAnim;
         }
 
         public void SetOrder(int order)

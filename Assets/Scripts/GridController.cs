@@ -13,6 +13,7 @@ namespace DefaultNamespace
             _view.onCellMoved += model.ChangePlace;
             _model.onCellChangePlace += _view.CellPlaceChangedAnim;
             _model.onCellFall += _view.CellFallAnim;
+            _model.onCellBoom += _view.CellBoomAnim;
         }
     }
 }
