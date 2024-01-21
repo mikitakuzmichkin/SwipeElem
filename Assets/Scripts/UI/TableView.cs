@@ -229,6 +229,8 @@ namespace UI
 
         private void CellMoved(CellView cell, EMove direction)
         {
+            if(_isAnim) return;
+            
             for (int i = 0; i < _rows; i++)
             {
                 for (int j = 0; j < _columns; j++)
