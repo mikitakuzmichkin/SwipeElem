@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DefaultNamespace
@@ -29,13 +30,20 @@ namespace DefaultNamespace
             _map[newPlace.x, newPlace.y] = temp;
             
             onCellChangePlace?.Invoke(oldPlace, newPlace);
-
-            bool fall = false;
+            
+            var win = false;
+            var boom = false;
             do
             {
-                fall = CheckFall();
-                CheckBoom();
-            } while (fall);
+                bool fall = false;
+                do
+                {
+                    fall = CheckFall();
+                } while (fall);
+                
+                boom = CheckBoom();
+                win = CheckWin();
+            } while (boom && !win);
         }
 
         private bool CheckFall()
@@ -76,7 +84,7 @@ namespace DefaultNamespace
         
         //Will cells consisting of two horizontal and three vertical in the shape of a letter "Г" be considered valid?
         //I thought not. Because the assignment specifies special cases with three vertically and three horizontally
-        private void CheckBoom()
+        private bool CheckBoom()
         {
             List<Vector2Int> boomIndexes = new List<Vector2Int>();
             for (int i = 0; i < _rows; i++)
@@ -134,7 +142,8 @@ namespace DefaultNamespace
                     boomIndexes.AddRange(rowIndexes);
                 }
             }
-            
+
+            boomIndexes = boomIndexes.Distinct().ToList();
             
             foreach (var index in boomIndexes)
             {
@@ -145,22 +154,25 @@ namespace DefaultNamespace
             {
                 onCellBoom?.Invoke(boomIndexes);
             }
+
+            return boomIndexes.Count > 0;
         }
 
-        private void CheckWin()
+        private bool CheckWin()
         {
-            bool isWin = true;
             for (int i = 0; i < _rows; i++)
             {
                 for (int j = 0; j < _columns; j++)
                 {
                     if (_map[i, j] > 0)
                     {
-                        isWin = false;
-                        return;
+                        return false;
                     }
                 }
             }
+
+            onWin?.Invoke();
+            return true;
         }
     }
 }

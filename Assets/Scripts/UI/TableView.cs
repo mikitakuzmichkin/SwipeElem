@@ -27,6 +27,8 @@ namespace UI
         private Vector3 _leftUpUsefulCorner;
         private GridController _controller;
         private bool _isAnim;
+        private int _levelIndex;
+        private Action _callBackAfterAnim;
         
         private Queue<List<Sequence>> _animQueue = new Queue<List<Sequence>>();
 
@@ -34,15 +36,24 @@ namespace UI
 
         private void Start()
         {
-            var map = ProjectContext.GetInstance<ILevels>()[0];
+            _levelIndex = 1;
+            DOTween.defaultAutoPlay = AutoPlay.None;
+
+            _controller = new GridController(this);
+            _cellSettings = ProjectContext.GetInstance<CellSettings>();
+            
+            InitNewLevel();
+        }
+
+        private void InitNewLevel()
+        {
+            var map = ProjectContext.GetInstance<ILevels>()[_levelIndex];
             _rows = map.GetLength(0);
             _columns = map.GetLength(1);
-            _cellSettings = ProjectContext.GetInstance<CellSettings>();
             GenerateCells(map, _rows, _columns);
-
-            DOTween.defaultAutoPlay = AutoPlay.None;
-            
-            _controller = new GridController(this, new GridModel(map, _rows, _columns));
+            _controller.Init(new GridModel(map, _rows, _columns));
+            _callBackAfterAnim = null;
+            Debug.Log("InitNewLevel");
         }
 
         public void CellPlaceChangedAnim(Vector2Int oldPlace, Vector2Int newPlace)
@@ -118,7 +129,7 @@ namespace UI
                 animList.Add(DOTween.Sequence()
                     .Append(DOTween.To(() => cell.BoomIndex, (x) => cell.BoomIndex = x, cell.BoomIndexMax,
                         _DURATION_BOOM)).SetEase(Ease.Linear)
-                    .AppendCallback(() => cell.gameObject.SetActive(false)));
+                    .AppendCallback(() => Destroy(cell.gameObject)));
                 
                 _cellMap[index.x, index.y] = null;
             }
@@ -127,6 +138,19 @@ namespace UI
             {
                 AddAnim(animList);
             }
+        }
+
+        public void NextLevel()
+        {
+            Debug.Log("NextLevel");
+            var levels = ProjectContext.GetInstance<ILevels>();
+            _levelIndex++;
+            if (_levelIndex >= levels.Count)
+            {
+                _levelIndex = 0;
+            }
+
+            _callBackAfterAnim = InitNewLevel;
         }
 
         private void AddAnim(List<Sequence> listSeq)
@@ -154,7 +178,7 @@ namespace UI
                 {
                     if (i == 0)
                     {
-                        list[i].AppendInterval(1f).AppendCallback(PlayAnim);
+                        list[i].AppendCallback(PlayAnim);
                     }
 
                     list[i].Play();
@@ -163,6 +187,7 @@ namespace UI
             else
             {
                 _isAnim = false;
+                _callBackAfterAnim?.Invoke();
             }
         }
 

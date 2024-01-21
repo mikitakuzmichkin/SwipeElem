@@ -6,14 +6,27 @@ namespace DefaultNamespace
     {
         private TableView _view;
         private GridModel _model;
-        public GridController(TableView view, GridModel model)
+        public GridController(TableView view)
         {
             _view = view;
+        }
+
+        public void Init(GridModel model)
+        {
+            if (_model != null)
+            {
+                _view.onCellMoved -= _model.ChangePlace;
+                _model.onCellChangePlace -= _view.CellPlaceChangedAnim;
+                _model.onCellFall -= _view.CellFallAnim;
+                _model.onCellBoom -= _view.CellBoomAnim;
+                _model.onWin -= _view.NextLevel;
+            }
             _model = model;
-            _view.onCellMoved += model.ChangePlace;
+            _view.onCellMoved += _model.ChangePlace;
             _model.onCellChangePlace += _view.CellPlaceChangedAnim;
             _model.onCellFall += _view.CellFallAnim;
             _model.onCellBoom += _view.CellBoomAnim;
+            _model.onWin += _view.NextLevel;
         }
     }
 }
