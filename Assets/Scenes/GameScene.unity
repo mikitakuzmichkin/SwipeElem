@@ -220,10 +220,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1308dcd418e4d39ab7f560fc3b2380e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minHeight: 0
-  maxHeight: 10
-  minSpeed: 20
-  maxSpeed: 100
+  _minHeight: 0
+  _maxHeight: 5
+  _minSpeed: 10
+  _maxSpeed: 20
   _width: 10
 --- !u!1 &519420028
 GameObject:
@@ -371,10 +371,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1308dcd418e4d39ab7f560fc3b2380e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minHeight: 0
-  maxHeight: 10
-  minSpeed: 20
-  maxSpeed: 100
+  _minHeight: 0
+  _maxHeight: 5
+  _minSpeed: 10
+  _maxSpeed: 20
   _width: 10
 --- !u!212 &527021675
 SpriteRenderer:
