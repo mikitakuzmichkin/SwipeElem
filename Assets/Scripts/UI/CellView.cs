@@ -60,7 +60,7 @@ namespace UI
             }
         }
 
-        public int BoomIndexMax => _boomAnim.Length;
+        public int BoomIndexMax => _boomAnim.Length - 1;
         public event Action<CellView, EMove> onMove;
 
         private void OnDrawGizmosSelected()
@@ -104,7 +104,7 @@ namespace UI
         {
             var delay = Random.Range(MIN_DELAY, MAX_DELAY);
             _sequence?.Kill();
-            _sequence = DOTween.Sequence().Append(DOTween.To(() => IdleIndex, x => IdleIndex = x, _idleAnim.Length, IDLE_DURATION))
+            _sequence = DOTween.Sequence().Append(DOTween.To(() => IdleIndex, x => IdleIndex = x, _idleAnim.Length - 1, IDLE_DURATION))
                 .SetEase(Ease.Linear)
                 .AppendInterval(delay)
                 .AppendCallback(() =>

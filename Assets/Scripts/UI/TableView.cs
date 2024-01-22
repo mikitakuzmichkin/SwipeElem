@@ -129,7 +129,7 @@ namespace UI
             {
                 var cell = _cellMap[index.x, index.y];
                 animList.Add(DOTween.Sequence()
-                    .Append(DOTween.To(() => cell.BoomIndex, (x) => cell.BoomIndex = x, cell.BoomIndexMax,
+                    .Append(DOTween.To(() => cell.BoomIndex, (x) => cell.BoomIndex = x, cell.BoomIndexMax ,
                         _DURATION_BOOM)).SetEase(Ease.Linear)
                     .AppendCallback(() => cell.Destroy()));
                 
