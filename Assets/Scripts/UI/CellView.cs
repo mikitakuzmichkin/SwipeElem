@@ -152,6 +152,12 @@ namespace UI
             _spriteRenderer.sortingOrder = order;
         }
 
+        public void Destroy()
+        {
+            _sequence?.Kill();
+            Destroy(gameObject);
+        }
+
         private EMove GetSwipeDirection(Vector3 swipeVector)
         {
             // Объявляем переменную для хранения минимального угла между вектором свайпа и одним из направлений

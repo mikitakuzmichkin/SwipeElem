@@ -129,7 +129,7 @@ namespace UI
                 animList.Add(DOTween.Sequence()
                     .Append(DOTween.To(() => cell.BoomIndex, (x) => cell.BoomIndex = x, cell.BoomIndexMax,
                         _DURATION_BOOM)).SetEase(Ease.Linear)
-                    .AppendCallback(() => Destroy(cell.gameObject)));
+                    .AppendCallback(() => cell.Destroy()));
                 
                 _cellMap[index.x, index.y] = null;
             }
@@ -150,8 +150,8 @@ namespace UI
                     for (int j = 0; j < _columns; j++)
                     {
                         if (_cellMap[i, j] != null)
-                        {
-                            Destroy(_cellMap[i,j].gameObject);
+                        { 
+                            _cellMap[i,j].Destroy();
                         }
                     }
                 }
