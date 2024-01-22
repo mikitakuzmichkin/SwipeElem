@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DefaultNamespace;
 using DG.Tweening;
 using Extensions;
+using Models;
 using SO;
 using UnityEditor;
 using UnityEngine;
@@ -97,21 +98,22 @@ namespace UI
             _cellMap[newPlace.x, newPlace.y] = firstCell;
         }
 
-        public void CellFallAnim(List<Vector2Int> Indexes)
+        public void CellFallAnim(List<CellModelFall> cellModelFalls)
         {
             List<Sequence> animList = new List<Sequence>();
-            foreach (var index in Indexes)
+            foreach (var modelFall in cellModelFalls)
             {
-                var cell = _cellMap[index.x, index.y];
-                var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * index.y,
-                    _leftUpUsefulCorner.y - _cellSize.y * (index.x + 1));
+                var cell = _cellMap[modelFall.Index.x, modelFall.Index.y];
+                var leftUpCell = new Vector3(_leftUpUsefulCorner.x + _cellSize.x * modelFall.Index.y,
+                    _leftUpUsefulCorner.y - _cellSize.y * (modelFall.Index.x + modelFall.FallStep));
                 var newPos = leftUpCell.GetCenter(_cellSize);
                 animList.Add(DOTween.Sequence()
-                    .AppendCallback(() => SetOrder(cell, new Vector2Int(index.x + 1, index.y)))
-                    .Append(DOTween.To(() => cell.transform.position, (x) => cell.SetPos(x), newPos, _DURATION_CHANGE_FALL)));
+                    .AppendCallback(() => SetOrder(cell, new Vector2Int(modelFall.Index.x + modelFall.FallStep, modelFall.Index.y)))
+                    .Append(DOTween.To(() => cell.transform.position, (x) => cell.SetPos(x), newPos, _DURATION_CHANGE_FALL * modelFall.FallStep))
+                    .SetSpeedBased());
 
-                _cellMap[index.x + 1, index.y] = _cellMap[index.x, index.y];
-                _cellMap[index.x, index.y] = null;
+                _cellMap[modelFall.Index.x + modelFall.FallStep, modelFall.Index.y] = _cellMap[modelFall.Index.x, modelFall.Index.y];
+                _cellMap[modelFall.Index.x, modelFall.Index.y] = null;
             }
             
             if (animList.Count > 0)

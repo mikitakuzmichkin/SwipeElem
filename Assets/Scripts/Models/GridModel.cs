@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace DefaultNamespace
+namespace Models
 {
     public class GridModel
     {
@@ -12,7 +12,7 @@ namespace DefaultNamespace
         private int _columns;
 
         public event Action<Vector2Int, Vector2Int> onCellChangePlace;
-        public event Action<List<Vector2Int>> onCellFall;
+        public event Action<List<CellModelFall>> onCellFall;
         public event Action<List<Vector2Int>> onCellBoom;
         public event Action onWin;
 
@@ -48,35 +48,41 @@ namespace DefaultNamespace
 
         private bool CheckFall()
         {
-            List<Vector2Int> fallIndexes = new List<Vector2Int>();
+            List<CellModelFall> fallIndexes = new List<CellModelFall>();
             for (int j = 0; j < _columns; j++)
             {
                 bool isFall = false;
+                int count = 0;
                 for (int i = _rows - 1; i >= 0; i--)
                 {
                     if (_map[i, j] == 0)
                     {
                         isFall = true;
+                        count++;
                     }
                     else
                     {
                         if (isFall)
                         {
-                            fallIndexes.Add(new Vector2Int(i,j));
+                            fallIndexes.Add(new CellModelFall()
+                            {
+                                Index = new Vector2Int(i, j),
+                                FallStep = count
+                            });
                         }
                     }
                 }
             }
 
-            foreach (var index in fallIndexes)
+            foreach (var cellFall in fallIndexes)
             {
-                _map[index.x + 1, index.y] = _map[index.x, index.y];
-                _map[index.x, index.y] = 0;
+                _map[cellFall.Index.x + cellFall.FallStep, cellFall.Index.y] = _map[cellFall.Index.x, cellFall.Index.y];
+                _map[cellFall.Index.x, cellFall.Index.y] = 0;
             }
 
             if (fallIndexes.Count > 0)
             {
-                onCellFall?.Invoke(fallIndexes);
+                onCellFall?.Invoke(fallIndexes.OrderByDescending(c => c.FallStep).ToList());
             }
             
             return fallIndexes.Count > 0;

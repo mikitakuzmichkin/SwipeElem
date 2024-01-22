@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CellModel
+public class CellModelFall
 {
-    public Color Color;
+    public Vector2Int Index;
     public int FallStep;
 }

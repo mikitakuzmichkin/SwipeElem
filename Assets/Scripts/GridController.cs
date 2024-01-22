@@ -1,4 +1,5 @@
-﻿using UI;
+﻿using Models;
+using UI;
 
 namespace DefaultNamespace
 {
