@@ -36,7 +36,7 @@ namespace UI
 
         private void Start()
         {
-            _levelIndex = 1;
+            _levelIndex = 0;
             DOTween.defaultAutoPlay = AutoPlay.None;
 
             _controller = new GridController(this);
@@ -140,7 +140,32 @@ namespace UI
             }
         }
 
-        public void NextLevel()
+        public void SetNextLevel()
+        {
+            NextLevel();
+            if (_cellMap != null)
+            {
+                for (int i = 0; i < _rows; i++)
+                {
+                    for (int j = 0; j < _columns; j++)
+                    {
+                        if (_cellMap[i, j] != null)
+                        {
+                            Destroy(_cellMap[i,j].gameObject);
+                        }
+                    }
+                }
+            }
+            InitNewLevel();
+        }
+
+        public void SetNextLevelAnim()
+        {
+            NextLevel();
+            _callBackAfterAnim = InitNewLevel;
+        }
+
+        private void NextLevel()
         {
             Debug.Log("NextLevel");
             var levels = ProjectContext.GetInstance<ILevels>();
@@ -149,8 +174,6 @@ namespace UI
             {
                 _levelIndex = 0;
             }
-
-            _callBackAfterAnim = InitNewLevel;
         }
 
         private void AddAnim(List<Sequence> listSeq)

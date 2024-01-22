@@ -19,14 +19,14 @@ namespace DefaultNamespace
                 _model.onCellChangePlace -= _view.CellPlaceChangedAnim;
                 _model.onCellFall -= _view.CellFallAnim;
                 _model.onCellBoom -= _view.CellBoomAnim;
-                _model.onWin -= _view.NextLevel;
+                _model.onWin -= _view.SetNextLevelAnim;
             }
             _model = model;
             _view.onCellMoved += _model.ChangePlace;
             _model.onCellChangePlace += _view.CellPlaceChangedAnim;
             _model.onCellFall += _view.CellFallAnim;
             _model.onCellBoom += _view.CellBoomAnim;
-            _model.onWin += _view.NextLevel;
+            _model.onWin += _view.SetNextLevelAnim;
         }
     }
 }
